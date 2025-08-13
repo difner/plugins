@@ -1,0 +1,245 @@
+diff --git a/.editorconfig b/.editorconfig
+new file mode 100644
+--- /dev/null
++++ b/.editorconfig
+@@ -0,0 +1,15 @@
++root = true
++
++[*]
++end_of_line = lf
++insert_final_newline = true
++charset = utf-8
++trim_trailing_whitespace = true
++indent_style = space
++indent_size = 2
++
++[*.js]
++indent_size = 2
++max_line_length = off
++quote_type = double
++
+diff --git a/.eslintrc.json b/.eslintrc.json
+new file mode 100644
+--- /dev/null
++++ b/.eslintrc.json
+@@ -0,0 +1,49 @@
++{
++  "env": {
++    "browser": true,
++    "es2020": true
++  },
++  "globals": {
++    "PluginManager": "readonly",
++    "$gameSwitches": "readonly",
++    "$gameVariables": "readonly",
++    "$gameParty": "readonly",
++    "$gameSystem": "readonly",
++    "$gameMap": "readonly",
++    "$gamePlayer": "readonly",
++    "SceneManager": "readonly",
++    "Scene_Map": "readonly",
++    "Scene_Menu": "readonly",
++    "Window_Base": "readonly"
++  },
++  "parserOptions": {
++    "ecmaVersion": 2020,
++    "sourceType": "script"
++  },
++  "rules": {
++    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
++    "no-undef": "warn",
++    "no-console": "off",
++    "eqeqeq": ["error", "always"],
++    "curly": ["error", "all"]
++  }
++}
++
+diff --git a/.github/ISSUE_TEMPLATE/bug.yml b/.github/ISSUE_TEMPLATE/bug.yml
+new file mode 100644
+--- /dev/null
++++ b/.github/ISSUE_TEMPLATE/bug.yml
+@@ -0,0 +1,33 @@
++name: Bug report
++description: Report a problem with a plugin
++labels: [bug]
++body:
++  - type: textarea
++    attributes:
++      label: Affected plugin(s)
++      description: e.g., TownReputation.js
++    validations:
++      required: true
++  - type: textarea
++    attributes:
++      label: Repro steps
++      description: Exact steps to reproduce the bug
++    validations:
++      required: true
++  - type: textarea
++    attributes:
++      label: Expected vs. actual
++    validations:
++      required: true
++  - type: textarea
++    attributes:
++      label: Screenshots / console logs
++  - type: textarea
++    attributes:
++      label: Game & plugin versions
++
+diff --git a/.github/ISSUE_TEMPLATE/feature.yml b/.github/ISSUE_TEMPLATE/feature.yml
+new file mode 100644
+--- /dev/null
++++ b/.github/ISSUE_TEMPLATE/feature.yml
+@@ -0,0 +1,23 @@
++name: Feature request
++description: Suggest an idea or enhancement
++labels: [enhancement]
++body:
++  - type: textarea
++    attributes:
++      label: Which plugin(s)?
++    validations:
++      required: true
++  - type: textarea
++    attributes:
++      label: Problem / motivation
++  - type: textarea
++    attributes:
++      label: Proposed solution (commands, notetags, UI)
++  - type: textarea
++    attributes:
++      label: Alternatives / risks
++
+diff --git a/.github/PULL_REQUEST_TEMPLATE.md b/.github/PULL_REQUEST_TEMPLATE.md
+new file mode 100644
+--- /dev/null
++++ b/.github/PULL_REQUEST_TEMPLATE.md
+@@ -0,0 +1,18 @@
++## What changed
++
++## Why
++
++## How to test
++- Game version:
++- Plugins involved:
++- Steps:
++
++## Checklist
++- [ ] Updated header `@version` where applicable
++- [ ] Updated docs (docs/ or README)
++
+diff --git a/.github/workflows/release.yml b/.github/workflows/release.yml
+new file mode 100644
+--- /dev/null
++++ b/.github/workflows/release.yml
+@@ -0,0 +1,43 @@
++name: build-and-zip
++on:
++  push:
++    tags:
++      - "v*"
++jobs:
++  zip:
++    runs-on: ubuntu-latest
++    steps:
++      - name: Checkout
++        uses: actions/checkout@v4
++      - name: Create zip
++        run: |
++          mkdir -p dist
++          zip -9 -r dist/rpgm-reputation-suite-${GITHUB_REF_NAME}.zip *.js
++      - name: Upload artifact
++        uses: actions/upload-artifact@v4
++        with:
++          name: rpgm-reputation-suite-${{ github.ref_name }}
++          path: dist/*.zip
++
+diff --git a/README.md b/README.md
+new file mode 100644
+--- /dev/null
++++ b/README.md
+@@ -0,0 +1,72 @@
++# RPG Maker Reputation Suite (Plugins)
++
++This repo hosts a set of RPG Maker MZ plugins centered on **reputation**, **guards/jail**, **guilds/contracts**, **territory control**, and related systems.
++
++## Install
++1. Download a release zip (or clone and copy `.js` files) into your project's `js/plugins/`.
++2. Open the Plugin Manager and enable the modules you need.
++3. Read each plugin's header `@help` for parameters and commands.
++
++## Plugins (high level)
++- `TownReputation.js` – Core town/faction reputation, tiers, inline text codes, menu.
++- `Gemini_RepDialogueChecks.js` – Gate choices/pages/events by rep.
++- `Gemini_BountyBoard.js` – Reputation-aware bounty board.
++- `Gemini_ArrestAndJail.js` – Arrests, contraband, jail.
++- `Gemini_BountyWarrants.js` – Crimes, warrants, wanted level.
++- `Gemini_GuardAI.js` / `Gemini_GuardPatrolAI.js` – Detection/chase and patrol/shift logic.
++- `Gemini_GuildContracts.js` – Guild board, ranks, contracts.
++- `Gemini_LootChoiceMenu.js` – Choose-one reward picker (rep-aware).
++- `Gemini_PatronageBoons.js` – Boons/discounts based on tiers.
++- `Gemini_RandomText.js` – Random lines filtered by rep/time/weather.
++- `Gemini_SchedulesCurfew.js` – Curfew windows + passes.
++- `Gemini_TerritoryControl.js` – Ownership/influence with capture points.
++- `TR_SkillRepActorOnly.js` – Rep effects limited to skill user.
++- `TR_UICompatShim.js` – Text parser & UI compat shim.
++
++> Full notetags + plugin command cheat sheet lives in **docs/REPUTATION_CHEATSHEET.md**.
++
++## Contributing
++* Use feature branches: `feature/<plugin>/<short-desc>`
++* Keep headers updated: `@version`, `@help`
++* Conventional commits encouraged (e.g., `feat(GuardAI): add backup call radius param`)
++
++## Releases
++Push a tag like `v0.2.0` to trigger a zip of all `.js` files under **Actions** > **Artifacts**.
++
++## License
++TBD (MIT recommended). Add a `LICENSE` file if you have a preference.
++
+diff --git a/docs/REPUTATION_CHEATSHEET.md b/docs/REPUTATION_CHEATSHEET.md
+new file mode 100644
+--- /dev/null
++++ b/docs/REPUTATION_CHEATSHEET.md
+@@ -0,0 +1,40 @@
++# Reputation Suite — Notetags & Plugin Commands (Cheat Sheet)
++
++**Scope covered:**
++- TownReputation.js (v8.0.x)
++- Gemini_RepDialogueChecks.js (v1.3.x)
++- Gemini_BountyBoard.js (v0.2.0)
++- Gemini_ArrestAndJail.js
++- Gemini_BountyWarrants.js
++- Gemini_ContractHUDLog.js
++- Gemini_GossipSpread.js
++- Gemini_GuardAI.js
++- Gemini_GuardPatrolAI.js
++- Gemini_GuildContracts.js
++- Gemini_LootChoiceMenu.js
++- Gemini_PatronageBoons.js
++- Gemini_RandomText.js
++- Gemini_SchedulesCurfew.js
++- Gemini_TerritoryControl.js
++- TR_SkillRepActorOnly.js
++- TR_UICompatShim.js
++
++> This file mirrors the living cheat sheet we’re building in Chat. If you want me to drop the **full** content here right now, say the word and I’ll paste the entire document into this file in a follow-up PR.
++
++## Quick usage example (inline codes)
++```
++Your standing: <showRep: GoblinClan> (<showTier: GoblinClan>)
++```
++
++## Typical event flow (arrest → jail)
++```
++◆ Plugin Command: Arrest Player (Reason: Theft, Fine: 500, Jail: 10, Confiscate: true, Teleport: true)
++◆ (Auto) Send To Jail → Registered cell on Map 17
++```
++
++## Bounty board quickstart
++```
++◆ Plugin Command: Add Bounty (Id: 101, Title: "Wolf Cull", TagKey: wolves, Required Kills: 6, Gold: 400, Rep Target: Millbrook, Rep Δ: +10)
++◆ Plugin Command: Open Bounty Board (Board Id: 1)
++```
++
