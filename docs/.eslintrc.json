@@ -1,0 +1,11 @@
+{
+  "env": { "browser": true, "es2020": true },
+  "parserOptions": { "ecmaVersion": 2020, "sourceType": "script" },
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-undef": "warn",
+    "no-console": "off",
+    "eqeqeq": ["error", "always"],
+    "curly": ["error", "all"]
+  }
+}

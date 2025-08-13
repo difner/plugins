@@ -1,0 +1,19 @@
+name: Bug report
+description: Report a problem with a plugin
+labels: [bug]
+body:
+  - type: input
+    attributes:
+      label: Affected plugin(s)
+      placeholder: e.g., TownReputation.js
+    validations: { required: true }
+  - type: textarea
+    attributes: { label: Repro steps }
+    validations: { required: true }
+  - type: textarea
+    attributes: { label: Expected vs. actual }
+    validations: { required: true }
+  - type: textarea
+    attributes: { label: Screenshots / console logs }
+  - type: textarea
+    attributes: { label: Game & plugin versions }
