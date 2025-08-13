@@ -1,0 +1,13 @@
+name: Feature request
+description: Suggest an idea or enhancement
+labels: [enhancement]
+body:
+  - type: input
+    attributes: { label: Which plugin(s)? }
+    validations: { required: true }
+  - type: textarea
+    attributes: { label: Problem / motivation }
+  - type: textarea
+    attributes: { label: Proposed solution (commands, notetags, UI) }
+  - type: textarea
+    attributes: { label: Alternatives / risks }
