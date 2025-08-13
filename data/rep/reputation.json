@@ -1,0 +1,11 @@
+{
+  "tiers": [
+    { "name": "Hated",      "min": -100, "max": -60 },
+    { "name": "Unfriendly", "min": -59,  "max": -21 },
+    { "name": "Neutral",    "min": -20,  "max": 19 },
+    { "name": "Friendly",   "min": 20,   "max": 59 },
+    { "name": "Allied",     "min": 60,   "max": 100 }
+  ],
+  "towns": ["Millbrook", "Rivershire"],
+  "factions": ["GoblinClan", "RangerGuild"]
+}
