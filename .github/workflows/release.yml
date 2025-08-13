@@ -1,0 +1,23 @@
+name: build-and-zip
+on:
+  release:
+    types: [published]
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create zip of all plugins
+        run: |
+          mkdir -p dist
+          zip -9 -r "dist/rpgm-reputation-suite-${{ github.ref_name }}.zip" *.js
+
+      - name: Upload to GitHub Release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
