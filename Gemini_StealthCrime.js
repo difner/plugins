@@ -1417,20 +1417,10 @@
     giveBack($dataItems,'item'); giveBack($dataWeapons,'weapon'); giveBack($dataArmors,'armor');
     if (ret>0) addToast(`Evidence returned: ${ret}`);
   }
-  Scene_Evidence.prototype.convertAll = function(){
-    if (!enableEvidenceSell) return;
-    let gold=0;
-    function drain(db, kind){
-      const bag = $gameSystem._scEvidence[TYPES[kind]];
-      for (const id in bag){
-        const n = stashTake(kind, Number(id), bag[id]|0);
-        if (n>0){ const obj=db[Number(id)]; gold += Math.floor((obj?.price||0)*n * (evidenceSellPercent/100)); }
-      }
-    }
-    drain($dataItems,'item'); drain($dataWeapons,'weapon'); drain($dataArmors,'armor');
-    if (gold>0){ $gameParty.gainGold(gold); addToast(`Evidence converted: +${gold}g`); }
-    this._list.refresh();
-  };
+    Scene_Evidence.prototype.convertAll = function () {
+        const gold = evidenceConvertAll();
+        if (this._list) this._list.refresh();
+    };
 
   //-----------------------------------------------------------------------------
   // Plugin commands
