@@ -741,8 +741,8 @@
     if (!kind) return;
     $gameParty.markStolen(kind, item.id, amount);
 
-    // witness (LOS or hearing)
-    if (!enableLOS) return;
+      // witness (LOS or hearing) — allow hearing-only if LOS is disabled
+      if (!enableLOS && !enableHearing) return;
     const px=$gamePlayer.x, py=$gamePlayer.y;
     const nowF=Graphics.frameCount;
     for (const ev of $gameMap.events()){
@@ -906,7 +906,9 @@
       }
     }
 
-    if (!enableContraband || !enableLOS) return;
+      // Allow hearing-only scans even if LOS is disabled
+      if (!enableContraband) return;
+      if (!enableLOS && !enableHearing) return;
 
     const px=$gamePlayer.x, py=$gamePlayer.y;
     const nowF = Graphics.frameCount;
@@ -1296,14 +1298,29 @@
     return seized;
   }
 
-  function evidenceValueSum(){
-    let sum=0;
-    function each(db, bag){ for (const id in bag){ const n=bag[id]|0; if (n>0){ const obj=db[Number(id)]; sum += (obj?.price||0)*n; } } }
-    each($dataItems, $gameSystem._scEvidence.items);
-    each($dataWeapons, $gameSystem._scEvidence.weapons);
-    each($dataArmors, $gameSystem._scEvidence.armors);
-    return sum;
-  }
+    // Convert ALL evidence to gold (shared by scene + command)
+    function evidenceConvertAll() {
+        if (!enableEvidenceSell) return 0;
+        let gold = 0;
+        function drain(db, kind) {
+            const bag = $gameSystem._scEvidence[TYPES[kind]];
+            for (const id in bag) {
+                const n = stashTake(kind, Number(id), bag[id] | 0);
+                if (n > 0) {
+                    const obj = db[Number(id)];
+                    gold += Math.floor((obj?.price || 0) * n * (evidenceSellPercent / 100));
+                }
+            }
+        }
+        drain($dataItems, 'item');
+        drain($dataWeapons, 'weapon');
+        drain($dataArmors, 'armor');
+        if (gold > 0) {
+            $gameParty.gainGold(gold);
+            addToast(`Evidence converted: +${gold}g`);
+        }
+        return gold;
+    }
 
   function Window_EvidenceList(){ this.initialize(...arguments); }
   Window_EvidenceList.prototype = Object.create(Window_Selectable.prototype);
@@ -1444,7 +1461,8 @@
   });
   PluginManager.registerCommand(PLUGIN, 'OpenEvidence', ()=> SceneManager.push(Scene_Evidence));
   PluginManager.registerCommand(PLUGIN, 'ReturnEvidenceAll', ()=> evidenceReturnAll());
-  PluginManager.registerCommand(PLUGIN, 'EvidenceConvertAll', ()=> { if (enableEvidenceSell) { const sc = new Scene_Evidence(); } });
+  PluginManager.registerCommand(PLUGIN, 'EvidenceConvertAll', () => { evidenceConvertAll(); });
+
 
   PluginManager.registerCommand(PLUGIN, 'GrantScannerWaiver', args=>{
     const auth=S(args.authority||dScannerAuthority);
